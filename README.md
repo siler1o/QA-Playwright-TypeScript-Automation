@@ -13,7 +13,7 @@
 
 Built against [QA Playground](https://qaplayground.com), using reusable page objects, Playwright assertions, named test steps, and GitHub Actions.
 
-[**View CI runs →**](https://github.com/siler1o/QA-Playwright-TypeScript-Automation/actions/workflows/playwright.yml) · [Test case](tests/TC001-input-fields.spec.ts) · [Page object](pages/InputFieldsPage.ts) · [Author](https://github.com/siler1o)
+[**View CI runs →**](https://github.com/siler1o/QA-Playwright-TypeScript-Automation/actions/workflows/playwright.yml) · [Test tracker (.xlsx)](test-cases/QA_Playground_TypeScript_Playwright_Test_Suite.xlsx) · [Test case](tests/TC001-input-fields.spec.ts) · [Page object](pages/InputFieldsPage.ts) · [Author](https://github.com/siler1o)
 
 | Implemented coverage | Browser projects | Execution evidence |
 | :--- | :--- | :--- |
@@ -26,6 +26,12 @@ Built against [QA Playground](https://qaplayground.com), using reusable page obj
 - **State and behavior checks:** verify values, results, disabled state, keyboard focus, and readonly behavior.
 - **Cross-browser execution:** the same test runs in three desktop browser projects.
 - **Continuous integration:** GitHub Actions installs dependencies and browsers, runs the suite, and uploads its HTML report.
+
+## Test-case tracker
+
+[**Download the QA Playground test-suite tracker (.xlsx)**](test-cases/QA_Playground_TypeScript_Playwright_Test_Suite.xlsx?raw=true)
+
+This repository copy preserves the uploaded workbook for reference alongside the automation code. It is a snapshot and does not automatically sync with the original tracker or GitHub Actions results. Download it to open in Excel or another compatible spreadsheet application.
 
 ## Current test coverage
 
@@ -102,6 +108,7 @@ Use the folder containing `index.html`. Reports are uploaded after test failures
 
 | Path | Purpose |
 | :--- | :--- |
+| [Test-suite tracker](test-cases/QA_Playground_TypeScript_Playwright_Test_Suite.xlsx) | Downloadable Excel workbook snapshot |
 | [`pages/InputFieldsPage.ts`](pages/InputFieldsPage.ts) | Page locators, actions, and reusable assertions |
 | [`tests/TC001-input-fields.spec.ts`](tests/TC001-input-fields.spec.ts) | Test orchestration and named verification steps |
 | [`playwright.config.ts`](playwright.config.ts) | Base URL, browser projects, reports, and CI behavior |
