@@ -1,3 +1,5 @@
+![Playwright + TypeScript — Web automation, Page Objects, cross-browser testing, and GitHub Actions](media/playwright-typescript-banner.png)
+
 # Playwright + TypeScript
 ### Cross-browser QA automation portfolio
 
