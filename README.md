@@ -13,18 +13,18 @@
 
 Built against [QA Playground](https://qaplayground.com), using reusable page objects, Playwright assertions, named test steps, and GitHub Actions.
 
-[**View CI runs →**](https://github.com/siler1o/QA-Playwright-TypeScript-Automation/actions/workflows/playwright.yml) · [Test tracker (.xlsx)](test-cases/QA_Playground_TypeScript_Playwright_Test_Suite.xlsx) · [Test case](tests/TC001-input-fields.spec.ts) · [Page object](pages/InputFieldsPage.ts) · [Author](https://github.com/siler1o)
+[**View CI runs →**](https://github.com/siler1o/QA-Playwright-TypeScript-Automation/actions/workflows/playwright.yml) · [Test tracker (.xlsx)](test-cases/QA_Playground_TypeScript_Playwright_Test_Suite.xlsx) · [TC001](tests/TC001-input-fields.spec.ts) · [TC002](tests/TC002-buttons.spec.ts) · [Page objects](pages) · [Author](https://github.com/siler1o)
 
 | Implemented coverage | Browser projects | Execution evidence |
 | :--- | :--- | :--- |
-| **TC001 · Input fields** | **Chromium · Firefox · WebKit** | **HTML report + retry traces** |
+| **2 test cases · Input fields + Buttons** | **Chromium · Firefox · WebKit** | **HTML report + retry traces** |
 
 ## What this project demonstrates
 
-- **Page Object Model:** locators and reusable page interactions live in `InputFieldsPage`.
-- **Readable test flow:** `test.step()` labels map the automated checks to TC001's steps.
+- **Page Object Model:** locators and reusable page interactions live in `InputFieldsPage` and `ButtonsPage`.
+- **Readable test flow:** `test.step()` labels map the automated checks to the documented test-case steps.
 - **State and behavior checks:** verify values, results, disabled state, keyboard focus, and readonly behavior.
-- **Cross-browser execution:** the same test runs in three desktop browser projects.
+- **Cross-browser execution:** the same tests run in three desktop browser projects.
 - **Continuous integration:** GitHub Actions installs dependencies and browsers, runs the suite, and uploads its HTML report.
 
 ## Test-case tracker
@@ -35,6 +35,8 @@ This repository copy preserves the uploaded workbook for reference alongside the
 
 ## Current test coverage
 
+### [TC001 — Input fields](tests/TC001-input-fields.spec.ts)
+
 | TC001 steps | Interaction | Verification |
 | :--- | :--- | :--- |
 | 1–3 | Enter and submit `Interstellar` | Input value and submitted result match |
@@ -43,7 +45,21 @@ This repository copy preserves the uploaded workbook for reference alongside the
 | 7 | Check disabled input and tab navigation | Disabled state; Tab reaches readonly input without focusing disabled input |
 | 8 | Read readonly value and attempt typing | Nonempty value, readonly attribute, and unchanged value after typing |
 
-**Scope:** one test case with multiple named steps, run in three browser projects. These are desktop browser configurations, not physical-device tests. Buttons and other page coverage are future additions.
+### [TC002 — Click actions and button states](tests/TC002-buttons.spec.ts)
+
+| Steps | Interaction | Verification |
+| :--- | :--- | :--- |
+| 1 | Open the Buttons page | S02, S05, S07, and S08 buttons are visible; initial result messages match |
+| 2 | Click Find Location (S02) | Numeric X/Y coordinates appear; S07 and S08 results stay unchanged |
+| 3–4 | Single-click, then double-click S07 | A single click leaves the initial message; double-click displays `Double clicked!` |
+| 5–6 | Left-click, then right-click S08 | Left-click leaves the initial message; right-click displays `Context menu triggered!` |
+| 7 | Inspect Disabled button (S05) | Button is disabled; its result matches the initial message |
+
+The coordinates assertion validates the numeric text format, not the accuracy of the button position. S05 is checked initially and at the end of the test; no click is attempted on the disabled button.
+
+**Scope:** two test cases with named steps, configured for Chromium, Firefox, and WebKit—six test/browser combinations per full run, before retries. These are desktop browser configurations, not physical-device tests.
+
+[Successful CI run for the TC002 implementation](https://github.com/siler1o/QA-Playwright-TypeScript-Automation/actions/runs/37226807309) · Use the badge above for current workflow status.
 
 The Tab check currently allows up to eight presses from the Clear button to the readonly input. Changes to the practice page's focus order may require updating that check.
 
@@ -66,6 +82,7 @@ These commands use Windows PowerShell-compatible executable names. On macOS or L
 | Run all configured browsers | `npx.cmd playwright test` |
 | Run Chromium only | `npx.cmd playwright test --project=chromium` |
 | Run TC001 | `npx.cmd playwright test tests/TC001-input-fields.spec.ts` |
+| Run TC002 | `npx.cmd playwright test tests/TC002-buttons.spec.ts` |
 | Show the browser during execution | `npx.cmd playwright test --project=chromium --headed` |
 | Open the HTML report | `npx.cmd playwright show-report` |
 
@@ -111,6 +128,8 @@ Use the folder containing `index.html`. Reports are uploaded after test failures
 | [Test-suite tracker](test-cases/QA_Playground_TypeScript_Playwright_Test_Suite.xlsx) | Downloadable Excel workbook snapshot |
 | [`pages/InputFieldsPage.ts`](pages/InputFieldsPage.ts) | Page locators, actions, and reusable assertions |
 | [`tests/TC001-input-fields.spec.ts`](tests/TC001-input-fields.spec.ts) | Test orchestration and named verification steps |
+| [`pages/ButtonsPage.ts`](pages/ButtonsPage.ts) | Button and result locators; single-, double-, and right-click actions |
+| [`tests/TC002-buttons.spec.ts`](tests/TC002-buttons.spec.ts) | Button outcomes, unchanged results, and disabled-state checks |
 | [`playwright.config.ts`](playwright.config.ts) | Base URL, browser projects, reports, and CI behavior |
 | [`tsconfig.json`](tsconfig.json) | TypeScript settings and Node type definitions |
 | [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) | Automated GitHub Actions execution |
@@ -120,7 +139,7 @@ Generated dependencies, reports, and test results are excluded from Git. The Typ
 
 ## Next steps
 
-- Add TC002 Buttons using the documented test-case sequence.
+- Implement the next test case from the tracker using the same POM and named-step structure.
 - Expand page objects and assertions as new cases are implemented.
 - Improve diagnostics and review reliability across all three browsers.
 
