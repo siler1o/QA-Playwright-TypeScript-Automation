@@ -13,6 +13,7 @@ export default defineConfig({
   use: {
     baseURL: 'https://qaplayground.com',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
 
   projects: [
