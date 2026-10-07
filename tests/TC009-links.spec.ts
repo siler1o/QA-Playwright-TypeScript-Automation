@@ -21,7 +21,7 @@ test('TC009 - navigation, href, and tab behavior', async ({ page, context }) => 
   });
 
   await test.step('Step 3: back on Links, record external href and tab count', async () => {
-    await page.goBack();
+    await page.goBack({ waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/practice\/links$/);
     externalHref = await links.href(links.externalCourseLink);
     expect(externalHref).toMatch(/^https:\/\//);

@@ -16,9 +16,9 @@ export class LinksPage {
   }
 
   async open(): Promise<void> {
-    await this.page.goto('/practice/links');
-    await this.page.waitForLoadState('networkidle');
-  }
+        // 'load' can hang in CI: the page pulls a third-party image that may never finish
+        await this.page.goto('/practice/links', { waitUntil: 'domcontentloaded' });
+   }
 
   async href(link: Locator): Promise<string> {
     return (await link.getAttribute('href'))!;
