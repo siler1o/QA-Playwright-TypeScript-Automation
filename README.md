@@ -17,14 +17,14 @@ Built against [QA Playground](https://qaplayground.com), using reusable page obj
 
 | Implemented coverage | Browser projects | Execution evidence |
 | :--- | :--- | :--- |
-| **14 test cases · Inputs, Buttons, Forms, Dropdowns, Data table, Dialogs, Radio & checkbox, Date picker, Links, Tabs, Dynamic waits, Multi select, File upload, Drag & drop** | **Chromium · Firefox · WebKit** | **HTML report + retry traces** |
+| **15 test cases · Inputs, Buttons, Forms, Dropdowns, Data table, Dialogs, Radio & checkbox, Date picker, Links, Tabs, Dynamic waits, Multi select, File upload, Drag & drop, iFrames** | **Chromium · Firefox · WebKit** | **HTML report + retry traces** |
 
 ## What this project demonstrates
 
 - **Page Object Model:** each practice page has one page object in [`pages/`](pages) holding its locators and reusable interactions.
 - **Readable test flow:** `test.step()` labels map the automated checks to the documented test-case steps.
 - **State and behavior checks:** verify values, results, disabled state, keyboard focus, readonly behavior, and validation errors.
-- **Browser-level scenarios:** modal dialogs, new tabs and popups, HTTP status checks, file uploads, drag and drop, and waits for changing UI without fixed sleeps.
+- **Browser-level scenarios:** modal dialogs, new tabs and popups, HTTP status checks, file uploads, drag and drop, nested iFrames, and waits for changing UI without fixed sleeps.
 - **Cross-browser execution:** the same tests run in three desktop browser projects.
 - **Continuous integration:** GitHub Actions installs dependencies and browsers, runs the suite, and uploads its HTML report.
 
@@ -178,13 +178,25 @@ Fixtures are created in memory with `Buffer`, so the repository needs no sample 
 | 5 | Drag item-3 above item-1 in the sortable list | Item-3 is first; same five items remain |
 | 6–7 | Drag task-2 from Todo to Done | Task leaves Todo and appears once in Done |
 
-**Scope:** fourteen test cases with named steps, configured for Chromium, Firefox, and WebKit—forty-two test/browser combinations per full run, before retries. These are desktop browser configurations, not physical-device tests.
+### [TC015 — iFrames](tests/TC015-iframes.spec.ts)
+
+| Steps | Interaction | Verification |
+| :--- | :--- | :--- |
+| 1 | Open iFrames and locate the basic frame | Frame is attached; its name input is editable and Submit is enabled |
+| 2 | Fill `Sample text` and submit inside the frame | Frame shows `Hello, Sample text!`; page result shows `Submitted: Sample text` |
+| 3–4 | Scroll to the preferences frame and choose Python | Select starts empty, then holds `python`; Save is visible and enabled |
+| 5–6 | Fill and submit the input two frames deep | Inner frame shows `Unlocked with: Sample text ✓`; page result names the value |
+| 7 | Wait for the dynamic frame's button, enter a code, and click it | Button appears within 5 seconds; page result shows the revealed value |
+
+Frames are reached with `frameLocator()`, chained twice for the nested case. The page lazy-loads its iframes, and Firefox and WebKit skip off-screen ones, so the test scrolls each frame into view before using it.
+
+**Scope:** fifteen test cases with named steps, configured for Chromium, Firefox, and WebKit—forty-five test/browser combinations per full run, before retries. These are desktop browser configurations, not physical-device tests.
 
 [Successful CI run for the TC002 implementation](https://github.com/siler1o/QA-Playwright-TypeScript-Automation/actions/runs/37226807309) · Use the badge above for current workflow status.
 
 The Tab check currently allows up to eight presses from the Clear button to the readonly input. Changes to the practice page's focus order may require updating that check.
 
-Some pages can ignore the first interaction if it happens before React finishes hydrating. TC011–TC014 retry that first action until the page responds; later steps use plain actions.
+Some pages can ignore the first interaction if it happens before React finishes hydrating. TC011–TC015 retry that first action until the page responds; later steps use plain actions.
 
 ## Run locally
 
@@ -204,7 +216,7 @@ These commands use Windows PowerShell-compatible executable names. On macOS or L
 | :--- | :--- |
 | Run all configured browsers | `npx.cmd playwright test` |
 | Run Chromium only | `npx.cmd playwright test --project=chromium` |
-| Run one test case | `npx.cmd playwright test tests/TC014-drag-drop.spec.ts` (use any file in `tests/`) |
+| Run one test case | `npx.cmd playwright test tests/TC015-iframes.spec.ts` (use any file in `tests/`) |
 | Show the browser during execution | `npx.cmd playwright test --project=chromium --headed` |
 | Open the HTML report | `npx.cmd playwright show-report` |
 
@@ -276,6 +288,8 @@ Use the folder containing `index.html`. Reports are uploaded after test failures
 | [`tests/TC013-file-upload.spec.ts`](tests/TC013-file-upload.spec.ts) | Single, multiple, type, size, and disabled-upload checks |
 | [`pages/DragDropPage.ts`](pages/DragDropPage.ts) | Drop zones, sortable list, and Kanban column locators |
 | [`tests/TC014-drag-drop.spec.ts`](tests/TC014-drag-drop.spec.ts) | Zone drops, list reorder, and column transfer checks |
+| [`pages/IframesPage.ts`](pages/IframesPage.ts) | Basic, form, nested, and dynamic frame locators; retried basic submit |
+| [`tests/TC015-iframes.spec.ts`](tests/TC015-iframes.spec.ts) | In-frame form, select, nested-frame, and dynamic-content checks |
 | [`playwright.config.ts`](playwright.config.ts) | Base URL, browser projects, reports, and CI behavior |
 | [`tsconfig.json`](tsconfig.json) | TypeScript settings and Node type definitions |
 | [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) | Automated GitHub Actions execution |
@@ -285,7 +299,7 @@ Generated dependencies, reports, and test results are excluded from Git. The Typ
 
 ## Next steps
 
-- Implement the next test case from the tracker using the same POM and named-step structure.
+- Implement the remaining tracker cases—TC016 Shadow DOM, TC017 Modal windows, TC018 Infinite scroll—using the same POM and named-step structure.
 - Expand page objects and assertions as new cases are implemented.
 - Improve diagnostics and review reliability across all three browsers.
 
