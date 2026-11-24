@@ -9,7 +9,7 @@
 ![POM](https://img.shields.io/badge/Architecture-Page_Object_Model-0F766E?style=flat-square)
 ![Browsers](https://img.shields.io/badge/Browser_projects-3-7C3AED?style=flat-square)
 
-**A growing UI automation framework that turns documented test steps into repeatable browser checks.**
+**A UI automation framework that turns documented test steps into repeatable browser checks: all 18 tracker cases automated.**
 
 Built against [QA Playground](https://qaplayground.com), using reusable page objects, Playwright assertions, named test steps, and GitHub Actions.
 
@@ -17,14 +17,14 @@ Built against [QA Playground](https://qaplayground.com), using reusable page obj
 
 | Implemented coverage | Browser projects | Execution evidence |
 | :--- | :--- | :--- |
-| **15 test cases · Inputs, Buttons, Forms, Dropdowns, Data table, Dialogs, Radio & checkbox, Date picker, Links, Tabs, Dynamic waits, Multi select, File upload, Drag & drop, iFrames** | **Chromium · Firefox · WebKit** | **HTML report + retry traces** |
+| **18 of 18 test cases · Inputs, Buttons, Forms, Dropdowns, Data table, Dialogs, Radio & checkbox, Date picker, Links, Tabs, Dynamic waits, Multi select, File upload, Drag & drop, iFrames, Shadow DOM, Modals, Infinite scroll** | **Chromium · Firefox · WebKit** | **HTML report + retry traces** |
 
 ## What this project demonstrates
 
 - **Page Object Model:** each practice page has one page object in [`pages/`](pages) holding its locators and reusable interactions.
 - **Readable test flow:** `test.step()` labels map the automated checks to the documented test-case steps.
 - **State and behavior checks:** verify values, results, disabled state, keyboard focus, readonly behavior, and validation errors.
-- **Browser-level scenarios:** modal dialogs, new tabs and popups, HTTP status checks, file uploads, drag and drop, nested iFrames, and waits for changing UI without fixed sleeps.
+- **Browser-level scenarios:** modal dialogs, new tabs and popups, HTTP status checks, file uploads, drag and drop, nested iFrames, open and nested shadow roots, scoped modal windows, infinite and virtualized scrolling, and waits for changing UI without fixed sleeps.
 - **Cross-browser execution:** the same tests run in three desktop browser projects.
 - **Continuous integration:** GitHub Actions installs dependencies and browsers, runs the suite, and uploads its HTML report.
 
@@ -190,13 +190,43 @@ Fixtures are created in memory with `Buffer`, so the repository needs no sample 
 
 Frames are reached with `frameLocator()`, chained twice for the nested case. The page lazy-loads its iframes, and Firefox and WebKit skip off-screen ones, so the test scrolls each frame into view before using it.
 
-**Scope:** fifteen test cases with named steps, configured for Chromium, Firefox, and WebKit—forty-five test/browser combinations per full run, before retries. These are desktop browser configurations, not physical-device tests.
+### [TC016 — Shadow DOM](tests/TC016-shadow-dom.spec.ts)
+
+| Steps | Interaction | Verification |
+| :--- | :--- | :--- |
+| 1–2 | Click the button inside the open shadow host | Host has `data-shadow-mode="open"`; click count goes up by exactly one; result confirms one click |
+| 3–4 | Click Activate Host 2 | Hosts 1 and 2 are distinct; only host 2 becomes Activated; host 1's class is unchanged |
+| 5–6 | Click the button two shadow roots deep | Inner host is attached and its button visible; result confirms activation; outer host is unchanged |
+| 7–8 | Fill `Ada Lovelace`, choose QA, and submit the shadow form | Name and role values match; result shows `Submitted: Ada Lovelace (qa) ✓` |
+
+Playwright's CSS and `getBy*` locators pierce open shadow roots, so the page object reaches inside each host by plain chaining. Counted clicks retry only while the result still shows its initial text, so a click is never counted twice.
+
+### [TC017 — Modal windows](tests/TC017-modals.spec.ts)
+
+| Steps | Interaction | Verification |
+| :--- | :--- | :--- |
+| 1–2 | Open the simple modal | Modal is absent at first; heading is Simple Modal; result shows `Opened` |
+| 3 | Click Close | Modal is removed; result shows `Closed` |
+| 4–5 | Open Details on the Advanced Locators card, then close it | Two course cards share the same test IDs; scoping by heading finds exactly one button; modal heading and result match that course |
+| 6 | Reopen the simple modal and click the backdrop | Modal closes; the trigger is clickable again, so no overlay is left blocking the page |
+
+### [TC018 — Infinite scroll](tests/TC018-infinite-scroll.spec.ts)
+
+| Steps | Interaction | Verification |
+| :--- | :--- | :--- |
+| 1–3 | Scroll the simple list to the bottom until it ends | Starts with 5 items; next batch appends; `End of List` appears with 15 items |
+| 4–5 | Scroll the virtualized list to item 50 | Item 1 renders first; item 50 is in the viewport and item 1 is recycled out of the DOM |
+| 6–7 | Scroll the manual list and click Load More | Load More appears; final batch adds Secret Item 20, for 20 items total |
+
+Scrolling is retried until the target appears, which covers both late-attaching scroll handlers and batches that load after a delay. The virtualized list is stepped one viewport at a time.
+
+**Scope:** eighteen test cases with named steps, configured for Chromium, Firefox, and WebKit—fifty-four test/browser combinations per full run, before retries. These are desktop browser configurations, not physical-device tests.
 
 [Successful CI run for the TC002 implementation](https://github.com/siler1o/QA-Playwright-TypeScript-Automation/actions/runs/37226807309) · Use the badge above for current workflow status.
 
 The Tab check currently allows up to eight presses from the Clear button to the readonly input. Changes to the practice page's focus order may require updating that check.
 
-Some pages can ignore the first interaction if it happens before React finishes hydrating. TC011–TC015 retry that first action until the page responds; later steps use plain actions.
+Some pages can ignore the first interaction if it happens before React finishes hydrating. TC011–TC018 retry that first action until the page responds; later steps use plain actions.
 
 ## Run locally
 
@@ -290,6 +320,12 @@ Use the folder containing `index.html`. Reports are uploaded after test failures
 | [`tests/TC014-drag-drop.spec.ts`](tests/TC014-drag-drop.spec.ts) | Zone drops, list reorder, and column transfer checks |
 | [`pages/IframesPage.ts`](pages/IframesPage.ts) | Basic, form, nested, and dynamic frame locators; retried basic submit |
 | [`tests/TC015-iframes.spec.ts`](tests/TC015-iframes.spec.ts) | In-frame form, select, nested-frame, and dynamic-content checks |
+| [`pages/ShadowDomPage.ts`](pages/ShadowDomPage.ts) | Shadow host, nested-root, and shadow-form locators; guarded click retry |
+| [`tests/TC016-shadow-dom.spec.ts`](tests/TC016-shadow-dom.spec.ts) | Open-root, multi-host, nested-root, and shadow-form checks |
+| [`pages/ModalsPage.ts`](pages/ModalsPage.ts) | Simple and course modal locators, card-scoped Details button, backdrop click |
+| [`tests/TC017-modals.spec.ts`](tests/TC017-modals.spec.ts) | Open, close, card scoping, and backdrop-dismissal checks |
+| [`pages/InfiniteScrollPage.ts`](pages/InfiniteScrollPage.ts) | Simple, virtualized, and Load More list locators; scroll-until-visible helpers |
+| [`tests/TC018-infinite-scroll.spec.ts`](tests/TC018-infinite-scroll.spec.ts) | Batch loading, end of list, virtualization, and Load More checks |
 | [`playwright.config.ts`](playwright.config.ts) | Base URL, browser projects, reports, and CI behavior |
 | [`tsconfig.json`](tsconfig.json) | TypeScript settings and Node type definitions |
 | [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) | Automated GitHub Actions execution |
@@ -299,8 +335,8 @@ Generated dependencies, reports, and test results are excluded from Git. The Typ
 
 ## Next steps
 
-- Implement the remaining tracker cases—TC016 Shadow DOM, TC017 Modal windows, TC018 Infinite scroll—using the same POM and named-step structure.
-- Expand page objects and assertions as new cases are implemented.
+- Add a TypeScript type-check step to the CI workflow.
+- Expand edge-case coverage on existing pages using the same POM and named-step structure.
 - Improve diagnostics and review reliability across all three browsers.
 
 ## More QA work
